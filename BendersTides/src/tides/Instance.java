@@ -99,4 +99,9 @@ public class Instance
 	{
 		return _end.get(t);
 	}
+	
+	public int mu()
+	{
+		return this.end(this.tides()-1);
+	}
 }

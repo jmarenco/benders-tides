@@ -3,7 +3,7 @@ package interfaz;
 import com.google.ortools.Loader;
 
 import tides.Instance;
-import tides.Master;
+import tides.BendersSolver;
 
 public class EntryPoint
 {
@@ -12,7 +12,7 @@ public class EntryPoint
 	    Loader.loadNativeLibraries();
 	    
 	    Instance instance = new Instance("sample-instance/ships.dat", "sample-instance/tides.dat");
-	    Master master = new Master(instance);
-	    master.solve();
+	    BendersSolver solver = new BendersSolver(instance);
+	    solver.solve();
 	}
 }

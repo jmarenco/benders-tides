@@ -96,6 +96,8 @@ public class Master
 			_berth[i] = k;
 			System.out.println(" - Ship " + i + " -> Berth " + k);
 		}
+
+		System.out.println();
 	}
 	
 	private void closeSolver()
