@@ -12,7 +12,7 @@ public class EntryPoint
 	    Loader.loadNativeLibraries();
 	    
 	    Instance instance = new Instance("sample-instance/ships.dat", "sample-instance/tides.dat");
-	    System.out.println(instance + "\r\n\r\n");
+	    System.out.println(instance + "\r\n");
 	    
 	    BendersSolver solver = new BendersSolver(instance);
 	    solver.solve();

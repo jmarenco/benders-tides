@@ -15,26 +15,26 @@ public class Master
 
 	private double _makespan;
 	private int[] _berth;
+	private int _forbidden;
 	
 	public Master(Instance instance)
 	{
 		_instance = instance;
 	}
 	
-	public void solve()
+	public void create()
 	{
 		createSolver();
 		createVariables();
 		createAssignmentConstraints();
 		createBindingConstraints();
 		createObjective();
-		solveModel();
-		closeSolver();
 	}
 	
 	private void createSolver()
 	{
 	    _solver = MPSolver.createSolver("SCIP");
+	    _forbidden = 0;
 
 	    if (_solver == null)
 	    	throw new RuntimeException("Solver is null!");
@@ -79,7 +79,20 @@ public class Master
 		obj.setCoefficient(z, 1);
 	}
 	
-	private void solveModel()
+	public void forbid(Cluster cluster)
+	{
+		for(int k=0; k<_instance.berths(); ++k)
+		{
+			MPConstraint constr = _solver.makeConstraint(0, cluster.ships()-1);
+
+			for(int i=0; i<cluster.ships(); ++i)
+				constr.setCoefficient(x[cluster.index(i)][k], 1);
+		}
+		
+		_forbidden++;
+	}
+	
+	public double solve()
 	{
 		ResultStatus status = _solver.solve();
 
@@ -98,9 +111,10 @@ public class Master
 		}
 
 		System.out.println();
+		return _makespan;
 	}
 	
-	private void closeSolver()
+	public void close()
 	{
 		_solver.clear();
 	}
@@ -113,6 +127,11 @@ public class Master
 	public int berth(int shipIndex)
 	{
 		return _berth[shipIndex];
+	}
+	
+	public int forbidden()
+	{
+		return _forbidden;
 	}
 	
 	public Cluster cluster(int berth)
