@@ -110,8 +110,18 @@ public class Master
 		return _makespan;
 	}
 	
-	public int berth(int i)
+	public int berth(int shipIndex)
 	{
-		return _berth[i];
+		return _berth[shipIndex];
+	}
+	
+	public Cluster cluster(int berth)
+	{
+		Cluster ret = new Cluster(_instance);
+		
+		for(int i=0; i<_instance.ships(); ++i) if( berth(i) == berth )
+			ret.addShip(i);
+		
+		return ret;
 	}
 }

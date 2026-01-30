@@ -29,6 +29,15 @@ public class Subproblem
 		_attention = new ArrayList<Integer>();
 	}
 	
+	public Subproblem(Instance instance, Cluster cluster)
+	{
+		_instance = instance;
+		_attention = new ArrayList<Integer>();
+		
+		for(int i=0; i<cluster.ships(); ++i)
+			addShip(cluster.attention(i));
+	}
+	
 	public void addShip(int attention)
 	{
 		_attention.add(attention);

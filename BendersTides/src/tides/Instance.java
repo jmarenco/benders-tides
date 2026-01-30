@@ -3,6 +3,7 @@ package tides;
 import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class Instance
 {
@@ -103,5 +104,15 @@ public class Instance
 	public int mu()
 	{
 		return this.end(this.tides()-1);
+	}
+	
+	@Override public String toString()
+	{
+		String ret = "Att: [" + String.join(", ", _attention.stream().map(i -> Integer.toString(i)).collect(Collectors.toList())) + "]\r\nTides: ";
+		
+		for(int t=0; t<tides(); ++t)
+			ret += "(" + start(t) + "," + end(t) + ") ";
+		
+		return ret;
 	}
 }
