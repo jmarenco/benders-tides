@@ -11,7 +11,7 @@ import com.google.ortools.linearsolver.MPVariable;
 public class Subproblem
 {
 	private Instance _instance;
-	private ArrayList<Integer> _attention;
+	private ArrayList<Double> _attention;
 
 	private MPSolver _solver;
 	private MPVariable[][] wl;
@@ -26,19 +26,19 @@ public class Subproblem
 	public Subproblem(Instance instance)
 	{
 		_instance = instance;
-		_attention = new ArrayList<Integer>();
+		_attention = new ArrayList<Double>();
 	}
 	
 	public Subproblem(Instance instance, Cluster cluster)
 	{
 		_instance = instance;
-		_attention = new ArrayList<Integer>();
+		_attention = new ArrayList<Double>();
 		
 		for(int i=0; i<cluster.ships(); ++i)
 			addShip(cluster.attention(i));
 	}
 	
-	public void addShip(int attention)
+	public void addShip(double attention)
 	{
 		_attention.add(attention);
 	}
@@ -189,17 +189,24 @@ public class Subproblem
 	private void solveModel()
 	{
 		ResultStatus status = _solver.solve();
-
 		System.out.println("Status: " + status);
-		System.out.println("Makespan: " + z.solutionValue());
-		System.out.println();
 		
-		_makespan = z.solutionValue();
-
-		for(int i=0; i<_attention.size(); ++i)
-			System.out.println(" - Ship " + i + ": [" + l[i].solutionValue() + ", " + r[i].solutionValue() + "]");
-		
-		System.out.println();
+		if( status == ResultStatus.OPTIMAL )
+		{
+			System.out.println("Makespan: " + z.solutionValue());
+			System.out.println();
+			
+			_makespan = z.solutionValue();
+	
+			for(int i=0; i<_attention.size(); ++i)
+				System.out.println(" - Ship " + i + ": [" + l[i].solutionValue() + ", " + r[i].solutionValue() + "]");
+			
+			System.out.println();
+		}
+		else
+		{
+			_makespan = Double.MAX_VALUE;
+		}
 	}
 	
 	private void closeSolver()

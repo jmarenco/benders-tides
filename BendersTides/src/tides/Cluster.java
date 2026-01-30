@@ -29,7 +29,7 @@ public class Cluster
 		return _index.get(i);
 	}
 	
-	public int attention(int i)
+	public double attention(int i)
 	{
 		return _instance.attention(index(i));
 	}

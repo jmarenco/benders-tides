@@ -9,8 +9,8 @@ public class BendersSolver
 	private ArrayList<Subproblem> _subproblems;
 	
 	private int _iteration;
-	private int _lb;
-	private int _ub;
+	private double _lb;
+	private double _ub;
 	private long _start;
 	
 	public BendersSolver(Instance instance)
@@ -24,7 +24,7 @@ public class BendersSolver
 	{
 		_iteration = 0;
 		_lb = 0;
-		_ub = Integer.MAX_VALUE;
+		_ub = Double.MAX_VALUE;
 		_start = System.currentTimeMillis();
 		_master.create();
 
@@ -32,7 +32,7 @@ public class BendersSolver
 		{
 			_iteration++;
 			_master.solve();
-			_lb = Math.max(_lb, (int)_master.makespan());
+			_lb = Math.max(_lb, _master.makespan());
 			_subproblems.clear();
 			
 			if( _lb < _ub )
@@ -44,7 +44,7 @@ public class BendersSolver
 				}
 				
 				_ub = Math.min(_ub, this.objective());
-				for(int i=0; i<_instance.berths(); ++i) if( _subproblems.get(i).makespan() >= _ub )
+				for(int i=0; i<_instance.berths(); ++i) if( _subproblems.get(i).makespan() >= _ub - 0.0001 )
 					_master.forbid(_master.cluster(i));
 			}
 			
@@ -52,17 +52,18 @@ public class BendersSolver
 		}
 	}
 	
-	private int objective()
+	private double objective()
 	{
-		return _subproblems.stream().mapToInt(s -> (int)s.makespan()).max().orElse(0);
+		return _subproblems.stream().mapToDouble(s -> s.makespan()).max().orElse(0);
 	}
 	
 	private void showStatistics()
 	{
 		System.out.print("It: " + _iteration + " | ");
 		System.out.print(String.format("%.2f", (System.currentTimeMillis() - _start) / 1000.0) + " sec. | ");
-		System.out.print("LB: " + _lb + " | ");
-		System.out.print("UB: " + _ub + " | ");
+		System.out.print("LB: " + String.format("%.2f", _lb) + " | ");
+		System.out.print("UB: " + String.format("%.2f", _ub) + " | ");
+		System.out.print("Gap: " + String.format("%.2f", _lb != 0 ? (_ub - _lb) * 100 / _lb : 0) + "% | ");
 		System.out.print("F: " + _master.forbidden() + " | ");
 		System.out.println();
 		System.out.println();

@@ -9,9 +9,9 @@ public class Instance
 {
 	public int _berths;
 	
-	public ArrayList<Integer> _attention;
-	public ArrayList<Integer> _start;
-	public ArrayList<Integer> _end;
+	public ArrayList<Double> _attention;
+	public ArrayList<Double> _start;
+	public ArrayList<Double> _end;
 	
 	public Instance(String shipsFile, String tidesFile)
 	{
@@ -32,7 +32,7 @@ public class Instance
 		Scanner in = new Scanner(fis);
 		
 		_berths = in.nextInt();
-		_attention = new ArrayList<Integer>();
+		_attention = new ArrayList<Double>();
 		
 		for(int i=1; in.hasNextInt(); ++i)
 		{
@@ -42,7 +42,7 @@ public class Instance
 				throw new RuntimeException("File format error: " + file + ", expecting " + i);
 			}
 			
-			_attention.add(in.nextInt());
+			_attention.add(in.nextDouble());
 		}
 		
 		in.close();
@@ -53,8 +53,8 @@ public class Instance
 		FileInputStream fis = new FileInputStream(file);
 		Scanner in = new Scanner(fis);
 		
-		_start = new ArrayList<Integer>();
-		_end = new ArrayList<Integer>();
+		_start = new ArrayList<Double>();
+		_end = new ArrayList<Double>();
 		
 		for(int i=1; in.hasNextInt(); ++i)
 		{
@@ -64,8 +64,8 @@ public class Instance
 				throw new RuntimeException("File format error: " + file + ", expecting " + i);
 			}
 			
-			_start.add(in.nextInt());
-			_end.add(in.nextInt());
+			_start.add(in.nextDouble());
+			_end.add(in.nextDouble());
 		}
 		
 		in.close();
@@ -86,29 +86,29 @@ public class Instance
 		return _start.size();
 	}
 	
-	public int attention(int i)
+	public double attention(int i)
 	{
 		return _attention.get(i);
 	}
 
-	public int start(int t)
+	public double start(int t)
 	{
 		return _start.get(t);
 	}
 
-	public int end(int t)
+	public double end(int t)
 	{
 		return _end.get(t);
 	}
 	
-	public int mu()
+	public double mu()
 	{
 		return this.end(this.tides()-1);
 	}
 	
 	@Override public String toString()
 	{
-		String ret = "Att: [" + String.join(", ", _attention.stream().map(i -> Integer.toString(i)).collect(Collectors.toList())) + "]\r\nTides: ";
+		String ret = "Att: [" + String.join(", ", _attention.stream().map(a -> String.format("%.2f", a)).collect(Collectors.toList())) + "]\r\nTides: ";
 		
 		for(int t=0; t<tides(); ++t)
 			ret += "(" + start(t) + "," + end(t) + ") ";
