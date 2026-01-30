@@ -35,12 +35,17 @@ public class BendersSolver
 			_lb = Math.max(_lb, _master.makespan());
 			_subproblems.clear();
 			
+			if( _master.optimal() == false )
+				_lb = _ub;
+			
 			if( _lb < _ub )
 			{
 				for(int i=0; i<_instance.berths(); ++i)
 				{
 					_subproblems.add(new Subproblem(_instance, _master.cluster(i)));
 					_subproblems.get(i).solve();
+
+					showStatistics(i);
 				}
 				
 				_ub = Math.min(_ub, this.objective());
@@ -57,9 +62,21 @@ public class BendersSolver
 		return _subproblems.stream().mapToDouble(s -> s.makespan()).max().orElse(0);
 	}
 	
+	private void showStatistics(int berth)
+	{
+		System.out.print("  - Berth " + berth + " | ");
+		System.out.print("St: " + _subproblems.get(berth).status() + " | ");
+		System.out.print(String.format("%.2f", _subproblems.get(berth).solvingTime()) + " sec. | ");
+		System.out.print("Obj: " + String.format("%.2f", _subproblems.get(berth).makespan()) + " | ");
+		System.out.println();
+	}
+	
 	private void showStatistics()
 	{
+		System.out.println();
 		System.out.print("It: " + _iteration + " | ");
+		System.out.print("St: " + _master.status() + " | ");
+		System.out.print(String.format("%.2f", _master.solvingTime()) + " sec. | ");
 		System.out.print(String.format("%.2f", (System.currentTimeMillis() - _start) / 1000.0) + " sec. | ");
 		System.out.print("LB: " + String.format("%.2f", _lb) + " | ");
 		System.out.print("UB: " + String.format("%.2f", _ub) + " | ");

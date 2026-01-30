@@ -12,7 +12,12 @@ public class Master
 	private MPSolver _solver;
 	private MPVariable[][] x;
 	private MPVariable z;
+	private ResultStatus _status;
 
+	private boolean _verbose = false;
+	private boolean _optimal;
+	private double _start;
+	private double _time;
 	private double _makespan;
 	private int[] _berth;
 	private int _forbidden;
@@ -94,23 +99,38 @@ public class Master
 	
 	public double solve()
 	{
-		ResultStatus status = _solver.solve();
-
-		System.out.println("Status: " + status);
-		System.out.println("Makespan: " + z.solutionValue());
-		System.out.println();
+		_start = System.currentTimeMillis();
+		_status = _solver.solve();
+		_time = (System.currentTimeMillis() - _start) / 1000.0;
+		_optimal = _status == ResultStatus.OPTIMAL;
 		
-		_makespan = z.solutionValue();
-		_berth = new int[_instance.ships()];
-
-		for(int i=0; i<_instance.ships(); ++i)
-		for(int k=0; k<_instance.berths(); ++k) if( x[i][k].solutionValue() > 0.9 )
+		if( _optimal == true )
 		{
-			_berth[i] = k;
-			System.out.println(" - Ship " + i + " -> Berth " + k);
+			_makespan = z.solutionValue();
+			_berth = new int[_instance.ships()];
+	
+			for(int i=0; i<_instance.ships(); ++i)
+			for(int k=0; k<_instance.berths(); ++k) if( x[i][k].solutionValue() > 0.9 )
+				_berth[i] = k;
 		}
 
-		System.out.println();
+		if( _verbose == true )
+		{
+			System.out.println("Status: " + _status);
+			
+			if( _optimal == true )
+			{
+				System.out.println("Makespan: " + z.solutionValue());
+				System.out.println();
+		
+				for(int i=0; i<_instance.ships(); ++i)
+				for(int k=0; k<_instance.berths(); ++k) if( x[i][k].solutionValue() > 0.9 )
+					System.out.println(" - Ship " + i + " -> Berth " + k);
+			}
+	
+			System.out.println();
+		}
+		
 		return _makespan;
 	}
 	
@@ -142,5 +162,20 @@ public class Master
 			ret.addShip(i);
 		
 		return ret;
+	}
+	
+	public String status()
+	{
+		return _status.toString();
+	}
+	
+	public double solvingTime()
+	{
+		return _time;
+	}
+	
+	public boolean optimal()
+	{
+		return _optimal;
 	}
 }

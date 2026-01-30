@@ -20,8 +20,12 @@ public class Subproblem
 	private MPVariable[] l;
 	private MPVariable[] r;
 	private MPVariable z;
-	
+	private ResultStatus _status;
+
+	private boolean _verbose = false;
 	private double _makespan;
+	private double _start;
+	private double _time;
 	
 	public Subproblem(Instance instance)
 	{
@@ -188,24 +192,26 @@ public class Subproblem
 	
 	private void solveModel()
 	{
-		ResultStatus status = _solver.solve();
-		System.out.println("Status: " + status);
+		_start = System.currentTimeMillis();
+		_status = _solver.solve();
+		_time = (System.currentTimeMillis() - _start) / 1000.0;
+		_makespan = _status == ResultStatus.OPTIMAL ? z.solutionValue() : Double.MAX_VALUE;
 		
-		if( status == ResultStatus.OPTIMAL )
+		if( _verbose == true )
 		{
-			System.out.println("Makespan: " + z.solutionValue());
+			System.out.println("Status: " + _status);
+			if( _status == ResultStatus.OPTIMAL )
+			{
+				System.out.println("Makespan: " + z.solutionValue());
+				System.out.println();
+				
+				_makespan = z.solutionValue();
+		
+				for(int i=0; i<_attention.size(); ++i)
+					System.out.println(" - Ship " + i + ": [" + l[i].solutionValue() + ", " + r[i].solutionValue() + "]");
+			}
+
 			System.out.println();
-			
-			_makespan = z.solutionValue();
-	
-			for(int i=0; i<_attention.size(); ++i)
-				System.out.println(" - Ship " + i + ": [" + l[i].solutionValue() + ", " + r[i].solutionValue() + "]");
-			
-			System.out.println();
-		}
-		else
-		{
-			_makespan = Double.MAX_VALUE;
 		}
 	}
 	
@@ -217,5 +223,15 @@ public class Subproblem
 	public double makespan()
 	{
 		return _makespan;
+	}
+	
+	public String status()
+	{
+		return _status.toString();
+	}
+	
+	public double solvingTime()
+	{
+		return _time;
 	}
 }
