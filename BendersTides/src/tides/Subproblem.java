@@ -230,6 +230,11 @@ public class Subproblem
 		return _status.toString();
 	}
 	
+	public boolean optimal()
+	{
+		return _status == ResultStatus.OPTIMAL;
+	}
+	
 	public double solvingTime()
 	{
 		return _time;

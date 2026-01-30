@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class BendersSolver
 {
 	private Instance _instance;
-	private Master _master;
+	private StretchedMaster _master;
 	private ArrayList<Subproblem> _subproblems;
 	
 	private int _iteration;
@@ -16,7 +16,7 @@ public class BendersSolver
 	public BendersSolver(Instance instance)
 	{
 		_instance = instance;
-		_master = new Master(instance);
+		_master = new StretchedMaster(instance);
 		_subproblems = new ArrayList<Subproblem>();
 	}
 	
@@ -49,7 +49,7 @@ public class BendersSolver
 				}
 				
 				_ub = Math.min(_ub, this.objective());
-				for(int i=0; i<_instance.berths(); ++i) if( _subproblems.get(i).makespan() >= _ub - 0.0001 )
+				for(int i=0; i<_instance.berths(); ++i) if( fathomable(i) )
 					_master.forbid(_master.cluster(i));
 			}
 			
@@ -62,12 +62,17 @@ public class BendersSolver
 		return _subproblems.stream().mapToDouble(s -> s.makespan()).max().orElse(0);
 	}
 	
+	private boolean fathomable(int subproblem)
+	{
+		return !_subproblems.get(subproblem).optimal() || _subproblems.get(subproblem).makespan() >= _ub - 0.0001;
+	}
+	
 	private void showStatistics(int berth)
 	{
 		System.out.print("  - Berth " + berth + " | ");
 		System.out.print("St: " + _subproblems.get(berth).status() + " | ");
 		System.out.print(String.format("%.2f", _subproblems.get(berth).solvingTime()) + " sec. | ");
-		System.out.print("Obj: " + String.format("%.2f", _subproblems.get(berth).makespan()) + " | ");
+		System.out.print(_subproblems.get(berth).makespan() < 1e10 ? "Obj: " + String.format("%.2f", _subproblems.get(berth).makespan()) + " | " : " | ");
 		System.out.println();
 	}
 	
