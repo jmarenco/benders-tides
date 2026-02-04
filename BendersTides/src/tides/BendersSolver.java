@@ -2,6 +2,8 @@ package tides;
 
 import java.util.ArrayList;
 
+import interfaz.EntryPoint;
+
 public class BendersSolver
 {
 	private Instance _instance;
@@ -15,6 +17,7 @@ public class BendersSolver
 	
 	public enum MasterProblem { Simple, Stretched };
 	private static MasterProblem _masterProblem = MasterProblem.Stretched;
+	private static double _timeLimit = 3600;
 	
 	public BendersSolver(Instance instance)
 	{
@@ -31,7 +34,7 @@ public class BendersSolver
 		_start = System.currentTimeMillis();
 		_master.create();
 
-		while( _lb + 0.001 < _ub )
+		while( _lb + 0.001 < _ub && elapsed() < _timeLimit )
 		{
 			_iteration++;
 			_master.solve();
@@ -58,6 +61,8 @@ public class BendersSolver
 			
 			showStatistics();
 		}
+
+		showFinalStatistics();
 	}
 	
 	private double objective()
@@ -68,6 +73,11 @@ public class BendersSolver
 	private boolean fathomable(int subproblem)
 	{
 		return !_subproblems.get(subproblem).optimal() || _subproblems.get(subproblem).makespan() >= _ub - 0.0001;
+	}
+	
+	private double elapsed()
+	{
+		return (System.currentTimeMillis() - _start) / 1000.0;
 	}
 	
 	private void showStatistics(int berth)
@@ -85,7 +95,21 @@ public class BendersSolver
 		System.out.print("It: " + _iteration + " | ");
 		System.out.print("St: " + _master.status() + " | ");
 		System.out.print(String.format("%.2f", _master.solvingTime()) + " sec. | ");
-		System.out.print(String.format("%.2f", (System.currentTimeMillis() - _start) / 1000.0) + " sec. | ");
+		System.out.print(String.format("%.2f", elapsed()) + " sec. | ");
+		System.out.print("LB: " + String.format("%.2f", _lb) + " | ");
+		System.out.print("UB: " + String.format("%.2f", _ub) + " | ");
+		System.out.print("Gap: " + String.format("%.2f", _lb != 0 ? (_ub - _lb) * 100 / _lb : 0) + "% | ");
+		System.out.print("F: " + _master.forbidden() + " | ");
+		System.out.println();
+		System.out.println();
+	}
+	
+	private void showFinalStatistics()
+	{
+		System.out.print("v" + EntryPoint.version() + " | ");
+		System.out.print("Its: " + _iteration + " | ");
+		System.out.print(String.format("%.2f", elapsed()) + " sec. | ");
+		System.out.print(_lb + 0.001 >= _ub ? "Optimal | " : "TimeLimit | ");
 		System.out.print("LB: " + String.format("%.2f", _lb) + " | ");
 		System.out.print("UB: " + String.format("%.2f", _ub) + " | ");
 		System.out.print("Gap: " + String.format("%.2f", _lb != 0 ? (_ub - _lb) * 100 / _lb : 0) + "% | ");
@@ -97,5 +121,10 @@ public class BendersSolver
 	public static void setMaster(MasterProblem masterProblem)
 	{
 		_masterProblem = masterProblem;
+	}
+	
+	public static void setTimeLimit(double limit)
+	{
+		_timeLimit = limit;
 	}
 }

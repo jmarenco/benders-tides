@@ -7,7 +7,7 @@ import tides.BendersSolver;
 
 public class EntryPoint
 {
-	private static String _version = "0.05";
+	private static String _version = "0.06";
 	
 	public static void main(String[] args)
 	{
@@ -17,8 +17,8 @@ public class EntryPoint
 	    if( argmap.containsArg("-help") )
 	    	showArguments();
 
-	    if( argmap.containsArg("-sm") )
-	    	BendersSolver.setMaster(BendersSolver.MasterProblem.Simple);
+    	BendersSolver.setMaster(argmap.containsArg("-sm") ? BendersSolver.MasterProblem.Simple : BendersSolver.MasterProblem.Stretched);
+	    BendersSolver.setTimeLimit(argmap.doubleArg("-time", 3600));
 	    
 	    Instance instance = new Instance(argmap.stringArg("-s", ""), argmap.stringArg("-t", ""));
 	    System.out.println(instance + "\r\n");
@@ -33,6 +33,12 @@ public class EntryPoint
 		System.out.println();
 		System.out.println("-s [s]      Ships .dat file");
 		System.out.println("-t [s]      Tides .dat file");
+		System.out.println("-time [f]   Time limit in seconds");
 		System.out.println("-sm         Simple master subproblem");
+	}
+	
+	public static String version()
+	{
+		return _version;
 	}
 }
