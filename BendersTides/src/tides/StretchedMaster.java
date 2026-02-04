@@ -15,7 +15,7 @@ public class StretchedMaster
 	private MPVariable z;
 	private ResultStatus _status;
 
-	private boolean _verbose = true;
+	private boolean _verbose = false;
 	private boolean _optimal;
 	private double _start;
 	private double _time;

@@ -10,11 +10,21 @@ public class EntryPoint
 	public static void main(String[] args)
 	{
 	    Loader.loadNativeLibraries();
+	    ArgMap argmap = new ArgMap(args);
 	    
-	    Instance instance = new Instance("sample-instance/ships.dat", "sample-instance/tides.dat");
+	    if( argmap.containsArg("-help") )
+	    	showArguments();
+	    
+	    Instance instance = new Instance(argmap.stringArg("-s", ""), argmap.stringArg("-t", ""));
 	    System.out.println(instance + "\r\n");
 	    
 	    BendersSolver solver = new BendersSolver(instance);
 	    solver.solve();
+	}
+	
+	private static void showArguments()
+	{
+		System.out.println("-s [s]      Ships .dat file");
+		System.out.println("-t [s]      Tides .dat file");
 	}
 }
