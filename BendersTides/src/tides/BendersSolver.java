@@ -14,6 +14,9 @@ public class BendersSolver
 	private double _lb;
 	private double _ub;
 	private long _start;
+	private double _masterTime;
+	private double _subproblemTime;
+	private int _solvedSubproblems;
 	
 	public enum MasterProblem { Simple, Stretched };
 	private static MasterProblem _masterProblem = MasterProblem.Stretched;
@@ -33,12 +36,16 @@ public class BendersSolver
 		_ub = Double.MAX_VALUE;
 		_start = System.currentTimeMillis();
 		_master.create();
+		_masterTime = 0;
+		_subproblemTime = 0;
+		_solvedSubproblems = 0;
 
 		while( _lb + 0.001 < _ub && elapsed() < _timeLimit )
 		{
 			_iteration++;
 			_master.solve();
 			_lb = Math.max(_lb, _master.makespan());
+			_masterTime += _master.solvingTime();
 			_subproblems.clear();
 			
 			if( _master.optimal() == false )
@@ -50,6 +57,8 @@ public class BendersSolver
 				{
 					_subproblems.add(new Subproblem(_instance, _master.cluster(i)));
 					_subproblems.get(i).solve();
+					_subproblemTime += _subproblems.get(i).solvingTime();
+					_solvedSubproblems += 1;
 
 					showStatistics(i);
 				}
@@ -108,7 +117,10 @@ public class BendersSolver
 	{
 		System.out.print("v" + EntryPoint.version() + " | ");
 		System.out.print("Its: " + _iteration + " | ");
-		System.out.print(String.format("%.2f", elapsed()) + " sec. | ");
+		System.out.print(String.format("Total: " + "%.2f", elapsed()) + " sec. | ");
+		System.out.print(String.format("M: " + "%.2f", _masterTime) + " sec. | ");
+		System.out.print(String.format("S: " + "%.2f", _subproblemTime) + " sec. | ");
+		System.out.print(_solvedSubproblems + " ss | ");
 		System.out.print(_lb + 0.001 >= _ub ? "Optimal | " : "TimeLimit | ");
 		System.out.print("LB: " + String.format("%.2f", _lb) + " | ");
 		System.out.print("UB: " + String.format("%.2f", _ub) + " | ");
