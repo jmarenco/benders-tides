@@ -2,6 +2,7 @@ package tides;
 
 import java.io.FileInputStream;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
@@ -30,6 +31,7 @@ public class Instance
 	{
 		FileInputStream fis = new FileInputStream(file);
 		Scanner in = new Scanner(fis);
+		in.useLocale(Locale.US);
 		
 		_berths = in.nextInt();
 		_attention = new ArrayList<Double>();
@@ -52,6 +54,7 @@ public class Instance
 	{
 		FileInputStream fis = new FileInputStream(file);
 		Scanner in = new Scanner(fis);
+		in.useLocale(Locale.US);
 		
 		_start = new ArrayList<Double>();
 		_end = new ArrayList<Double>();
