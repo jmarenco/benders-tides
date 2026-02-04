@@ -116,6 +116,7 @@ public class BendersSolver
 	private void showFinalStatistics()
 	{
 		System.out.print("v" + EntryPoint.version() + " | ");
+		System.out.print(_instance.summary() + " | ");
 		System.out.print("Its: " + _iteration + " | ");
 		System.out.print(String.format("Total: " + "%.2f", elapsed()) + " sec. | ");
 		System.out.print(String.format("M: " + "%.2f", _masterTime) + " sec. | ");

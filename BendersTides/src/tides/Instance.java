@@ -118,4 +118,9 @@ public class Instance
 		
 		return ret;
 	}
+	
+	public String summary()
+	{
+		return "n: " + ships() + " | m: " + berths() + " | t: " + tides() + " | mu: " + String.format("%.2f", mu());
+	}
 }
