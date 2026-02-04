@@ -6,17 +6,15 @@ import com.google.ortools.linearsolver.MPSolver;
 import com.google.ortools.linearsolver.MPSolver.ResultStatus;
 import com.google.ortools.linearsolver.MPVariable;
 
-public class StretchedMaster extends Master
+public class SimpleMaster extends Master
 {
-	private Stretcher _stretcher;
 	private MPSolver _solver;
-	private MPVariable[][][] x;
+	private MPVariable[][] x;
 	private MPVariable z;
-	
-	public StretchedMaster(Instance instance)
+
+	public SimpleMaster(Instance instance)
 	{
 		super(instance);
-		_stretcher = new Stretcher(instance);
 	}
 	
 	public void create()
@@ -24,7 +22,6 @@ public class StretchedMaster extends Master
 		createSolver();
 		createVariables();
 		createAssignmentConstraints();
-		createNonOverlappingConstraints();
 		createBindingConstraints();
 		createObjective();
 	}
@@ -40,13 +37,12 @@ public class StretchedMaster extends Master
 	
 	private void createVariables()
 	{
-		x = new MPVariable[_instance.ships()][_instance.berths()][_instance.tides()];
+		x = new MPVariable[_instance.ships()][_instance.berths()];
 		z = _solver.makeNumVar(0, 1000, "z");
 		
 		for(int i=0; i<_instance.ships(); ++i)
-		for(int t=0; t<_instance.tides(); ++t) if( _stretcher.feasible(i, t) )
 		for(int k=0; k<_instance.berths(); ++k)
-			x[i][k][t] = _solver.makeBoolVar("x(" + i + "," + k + "," + t + ")");
+			x[i][k] = _solver.makeBoolVar("x(" + i + "," + k + ")");
 	}
 	
 	private void createAssignmentConstraints()
@@ -56,34 +52,19 @@ public class StretchedMaster extends Master
 			MPConstraint constr = _solver.makeConstraint(1, 1);
 			
 			for(int k=0; k<_instance.berths(); ++k)
-			for(int t=0; t<_instance.tides(); ++t) if( x[i][k][t] != null )
-				constr.setCoefficient(x[i][k][t], 1);
+				constr.setCoefficient(x[i][k], 1);
 		}
 	}
 	
 	private void createBindingConstraints()
 	{
-		for(int i=0; i<_instance.ships(); ++i)
+		for(int k=0; k<_instance.berths(); ++k)
 		{
 			MPConstraint constr = _solver.makeConstraint(-1000, 0);
 			constr.setCoefficient(z, -1);
 			
-			for(int k=0; k<_instance.berths(); ++k)
-			for(int t=0; t<_instance.tides(); ++t) if( x[i][k][t] != null )
-				constr.setCoefficient(x[i][k][t], _stretcher.releaseTime(i,t));
-		}
-	}
-
-	private void createNonOverlappingConstraints()
-	{
-		for(int k=0; k<_instance.berths(); ++k)
-		for(int t=0; t<_instance.tides(); ++t)
-		{
-			MPConstraint constr = _solver.makeConstraint(0, 1);
-
 			for(int i=0; i<_instance.ships(); ++i)
-			for(int st=0; st<=t; ++st) if( x[i][k][st] != null && _stretcher.endingTide(i, st) > t )
-				constr.setCoefficient(x[i][k][st], 1);
+				constr.setCoefficient(x[i][k], _instance.attention(i));
 		}
 	}
 
@@ -100,8 +81,7 @@ public class StretchedMaster extends Master
 			MPConstraint constr = _solver.makeConstraint(0, cluster.ships()-1);
 
 			for(int i=0; i<cluster.ships(); ++i)
-			for(int t=0; t<_instance.tides(); ++t) if( x[cluster.index(i)][k][t] != null )
-				constr.setCoefficient(x[cluster.index(i)][k][t], 1);
+				constr.setCoefficient(x[cluster.index(i)][k], 1);
 		}
 		
 		_forbidden++;
@@ -117,8 +97,7 @@ public class StretchedMaster extends Master
 			_berth = new int[_instance.ships()];
 	
 			for(int i=0; i<_instance.ships(); ++i)
-			for(int k=0; k<_instance.berths(); ++k)
-			for(int t=0; t<_instance.tides(); ++t) if( x[i][k][t] != null && x[i][k][t].solutionValue() > 0.9 )
+			for(int k=0; k<_instance.berths(); ++k) if( x[i][k].solutionValue() > 0.9 )
 				_berth[i] = k;
 		}
 
@@ -132,9 +111,8 @@ public class StretchedMaster extends Master
 				System.out.println();
 		
 				for(int i=0; i<_instance.ships(); ++i)
-				for(int k=0; k<_instance.berths(); ++k)
-				for(int t=0; t<_instance.tides(); ++t) if( x[i][k][t] != null && x[i][k][t].solutionValue() > 0.9 )
-					System.out.println(" - Ship " + i + " -> Berth " + k + ", Release: " + _stretcher.releaseTime(i,t));
+				for(int k=0; k<_instance.berths(); ++k) if( x[i][k].solutionValue() > 0.9 )
+					System.out.println(" - Ship " + i + " -> Berth " + k);
 			}
 	
 			System.out.println();

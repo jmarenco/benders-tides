@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class BendersSolver
 {
 	private Instance _instance;
-	private StretchedMaster _master;
+	private Master _master;
 	private ArrayList<Subproblem> _subproblems;
 	
 	private int _iteration;
@@ -13,10 +13,13 @@ public class BendersSolver
 	private double _ub;
 	private long _start;
 	
+	public enum MasterProblem { Simple, Stretched };
+	private static MasterProblem _masterProblem = MasterProblem.Stretched;
+	
 	public BendersSolver(Instance instance)
 	{
 		_instance = instance;
-		_master = new StretchedMaster(instance);
+		_master = _masterProblem == MasterProblem.Simple ? new SimpleMaster(instance) : new StretchedMaster(instance);
 		_subproblems = new ArrayList<Subproblem>();
 	}
 	
@@ -28,7 +31,7 @@ public class BendersSolver
 		_start = System.currentTimeMillis();
 		_master.create();
 
-		while( _lb < _ub )
+		while( _lb + 0.001 < _ub )
 		{
 			_iteration++;
 			_master.solve();
@@ -89,5 +92,10 @@ public class BendersSolver
 		System.out.print("F: " + _master.forbidden() + " | ");
 		System.out.println();
 		System.out.println();
+	}
+	
+	public static void setMaster(MasterProblem masterProblem)
+	{
+		_masterProblem = masterProblem;
 	}
 }
