@@ -21,7 +21,9 @@ public class EntryPoint
 	    BendersSolver.setTimeLimit(argmap.doubleArg("-time", 3600));
 	    
 	    Instance instance = new Instance(argmap.stringArg("-s", ""), argmap.stringArg("-t", ""));
-	    System.out.println(instance + "\r\n");
+	    
+	    if( argmap.containsArg("-showinst") )
+	    	System.out.println(instance + "\r\n");
 	    
 	    BendersSolver solver = new BendersSolver(instance);
 	    solver.solve();
@@ -35,6 +37,7 @@ public class EntryPoint
 		System.out.println("-t [s]      Tides .dat file");
 		System.out.println("-time [f]   Time limit in seconds");
 		System.out.println("-sm         Simple master subproblem");
+		System.out.println("-showinst   Output instance data");
 	}
 	
 	public static String version()
