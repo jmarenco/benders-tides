@@ -7,7 +7,7 @@ import tides.BendersSolver;
 
 public class EntryPoint
 {
-	private static String _version = "0.13";
+	private static String _version = "0.14";
 	
 	public static void main(String[] args)
 	{

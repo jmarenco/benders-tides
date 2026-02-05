@@ -118,7 +118,7 @@ public class StretchedMaster extends Master
 		if( _status == ResultStatus.OPTIMAL || _status == ResultStatus.FEASIBLE )
 		{
 			_makespan = z.solutionValue();
-			_lb = _solver.objective().bestBound();
+			_lb = _status == ResultStatus.OPTIMAL ? z.solutionValue() : _solver.objective().bestBound();
 			_berth = new int[_instance.ships()];
 	
 			for(int i=0; i<_instance.ships(); ++i)
