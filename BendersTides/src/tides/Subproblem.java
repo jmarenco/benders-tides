@@ -49,7 +49,7 @@ public class Subproblem
 	
 	public double solve()
 	{
-		if( _attention.size() == 0 )
+		if( emptySubproblem() == true )
 			return 0;
 		
 		createSolver();
@@ -65,6 +65,17 @@ public class Subproblem
 		closeSolver();
 		
 		return _makespan;
+	}
+	
+	private boolean emptySubproblem()
+	{
+		if( _attention.size() == 0 )
+		{
+			_makespan = 0;
+			_status = ResultStatus.OPTIMAL;
+		}
+		
+		return _attention.size() == 0;
 	}
 	
 	private void createSolver()
