@@ -34,8 +34,11 @@ public class StretchedMaster extends Master
 	    _solver = MPSolver.createSolver("SCIP");
 	    _forbidden = 0;
 
-	    if (_solver == null)
+	    if( _solver == null )
 	    	throw new RuntimeException("Solver is null!");
+	    
+	    if( _solverOutput == true )
+			_solver.enableOutput();
 	}
 	
 	private void createVariables()
@@ -107,13 +110,15 @@ public class StretchedMaster extends Master
 		_forbidden++;
 	}
 	
-	protected void solveModel()
+	protected void solveModel(double timeLimit)
 	{
+		_solver.setTimeLimit((int)(1000 * timeLimit));
 		_status = _solver.solve();
 		
-		if( _status == ResultStatus.OPTIMAL )
+		if( _status == ResultStatus.OPTIMAL || _status == ResultStatus.FEASIBLE )
 		{
 			_makespan = z.solutionValue();
+			_lb = _solver.objective().bestBound();
 			_berth = new int[_instance.ships()];
 	
 			for(int i=0; i<_instance.ships(); ++i)
@@ -126,7 +131,7 @@ public class StretchedMaster extends Master
 		{
 			System.out.println("Status: " + _status);
 			
-			if( _optimal == true )
+			if( _status == ResultStatus.OPTIMAL || _status == ResultStatus.FEASIBLE )
 			{
 				System.out.println("Makespan: " + z.solutionValue());
 				System.out.println();

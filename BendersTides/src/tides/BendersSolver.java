@@ -43,20 +43,20 @@ public class BendersSolver
 		while( _lb + 0.001 < _ub && elapsed() < _timeLimit )
 		{
 			_iteration++;
-			_master.solve();
-			_lb = Math.max(_lb, _master.makespan());
+			_master.solve(0.75 * _timeLimit);
+			_lb = Math.max(_lb, _master.lowerBound());
 			_masterTime += _master.solvingTime();
 			_subproblems.clear();
 			
-			if( _master.optimal() == false )
-				_lb = _ub;
+			if( _master.feasible() == false )
+				break;
 			
 			if( _lb < _ub )
 			{
 				for(int i=0; i<_instance.berths(); ++i)
 				{
 					_subproblems.add(new Subproblem(_instance, _master.cluster(i)));
-					_subproblems.get(i).solve();
+					_subproblems.get(i).solve(0.5 * _timeLimit);
 					_subproblemTime += _subproblems.get(i).solvingTime();
 					_solvedSubproblems += 1;
 
@@ -108,6 +108,7 @@ public class BendersSolver
 		System.out.print("LB: " + String.format("%.2f", _lb) + " | ");
 		System.out.print("UB: " + String.format("%.2f", _ub) + " | ");
 		System.out.print("Gap: " + String.format("%.2f", _lb != 0 ? (_ub - _lb) * 100 / _lb : 0) + "% | ");
+		System.out.print("mObj: " + String.format("%.2f", _master.makespan()) + " | ");
 		System.out.print("F: " + _master.forbidden() + " | ");
 		System.out.println();
 		System.out.println();

@@ -47,7 +47,7 @@ public class Subproblem
 		_attention.add(attention);
 	}
 	
-	public double solve()
+	public double solve(double timeLimit)
 	{
 		if( emptySubproblem() == true )
 			return 0;
@@ -61,7 +61,7 @@ public class Subproblem
 		createMakespanConstraints();
 		createAntiparallelismConstraints();
 		createObjective();
-		solveModel();
+		solveModel(timeLimit);
 		closeSolver();
 		
 		return _makespan;
@@ -201,17 +201,18 @@ public class Subproblem
 		obj.setCoefficient(z, 1);
 	}
 	
-	private void solveModel()
+	private void solveModel(double timeLimit)
 	{
+		_solver.setTimeLimit((int)(1000 * timeLimit));
 		_start = System.currentTimeMillis();
 		_status = _solver.solve();
 		_time = (System.currentTimeMillis() - _start) / 1000.0;
-		_makespan = _status == ResultStatus.OPTIMAL ? z.solutionValue() : Double.MAX_VALUE;
+		_makespan = _status == ResultStatus.OPTIMAL || _status == ResultStatus.FEASIBLE ? z.solutionValue() : Double.MAX_VALUE;
 		
 		if( _verbose == true )
 		{
 			System.out.println("Status: " + _status);
-			if( _status == ResultStatus.OPTIMAL )
+			if( _status == ResultStatus.OPTIMAL || _status == ResultStatus.FEASIBLE )
 			{
 				System.out.println("Makespan: " + z.solutionValue());
 				System.out.println();

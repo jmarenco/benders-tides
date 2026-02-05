@@ -8,8 +8,11 @@ public abstract class Master
 	protected ResultStatus _status;
 
 	protected boolean _verbose = false;
-	protected boolean _optimal;
+	protected boolean _solverOutput = false;
+	private boolean _optimal;
+	private boolean _feasible;
 	protected double _makespan;
+	protected double _lb;
 	protected double _time;
 	protected int[] _berth;
 	protected int _forbidden;
@@ -21,25 +24,30 @@ public abstract class Master
 	
 	public abstract void create();
 	public abstract void forbid(Cluster cluster);
-	protected abstract void solveModel();
+	protected abstract void solveModel(double timeLimit);
 	public abstract void close();
 
-	public double solve()
+	public double solve(double timeLimit)
 	{
 		long start = System.currentTimeMillis();
 		
-		solveModel();
+		solveModel(timeLimit);
 
 		_time = (System.currentTimeMillis() - start) / 1000.0;
 		_optimal = _status == ResultStatus.OPTIMAL;
+		_feasible = _status == ResultStatus.OPTIMAL || _status == ResultStatus.FEASIBLE;
 		
 		return _makespan;
 	}
 	
-	
 	public double makespan()
 	{
 		return _makespan;
+	}
+	
+	public double lowerBound()
+	{
+		return _lb;
 	}
 	
 	public int berth(int shipIndex)
@@ -75,5 +83,10 @@ public abstract class Master
 	public boolean optimal()
 	{
 		return _optimal;
+	}
+	
+	public boolean feasible()
+	{
+		return _feasible;
 	}
 }
