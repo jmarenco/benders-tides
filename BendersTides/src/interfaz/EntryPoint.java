@@ -7,7 +7,7 @@ import tides.BendersSolver;
 
 public class EntryPoint
 {
-	private static String _version = "0.12";
+	private static String _version = "0.13";
 	
 	public static void main(String[] args)
 	{
@@ -16,6 +16,9 @@ public class EntryPoint
 	    
 	    if( argmap.containsArg("-help") )
 	    	showArguments();
+	    
+	    if( !argmap.containsArg("-s") && !argmap.containsArg("-t") )
+	    	return;
 
     	BendersSolver.setMaster(argmap.containsArg("-sm") ? BendersSolver.MasterProblem.Simple : BendersSolver.MasterProblem.Stretched);
 	    BendersSolver.setTimeLimit(argmap.doubleArg("-time", 3600));
